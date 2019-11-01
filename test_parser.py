@@ -7,7 +7,7 @@ class TestParser(TestCase):
         str_instr = "sub r1, r0"
         str_instr = "sub r1, r0  # Comment"
         instr = Instruction(str_instr)
-        print("(%s, %s, %s)" % (instr.opcode, instr.operand1, instr.operand2))
+        print("(%s, %s, %s)" % (instr.opcode, instr.op1, instr.op2))
         self.assertTrue(True)
 
     def test_program_parsing(self):

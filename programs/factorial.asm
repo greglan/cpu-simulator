@@ -1,5 +1,5 @@
 # Computes the factorial of a number
-movi r0, 5
+movi r0, 6
 br 6
 b 20
 

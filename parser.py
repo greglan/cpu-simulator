@@ -6,8 +6,9 @@ INSTR_TYPE_BRANCH = 4   # Branches
 class Instruction:
     def __init__(self, assembly):
         self.opcode = None
-        self.operand1 = None
-        self.operand2 = None
+        self.op1 = None
+        self.op2 = None
+        self.op3 = None
         self.type = None
         self.parse(assembly)
 
@@ -30,31 +31,40 @@ class Instruction:
         assembly = assembly.strip()
 
         # Detect syntax
-        if assembly.count(',') == 1:  # Comma detected, so 2 operands
+        comma_count = assembly.count(',')
+        if comma_count == 1:  # Comma detected, so 2 operands
             opcode_operand1, operand2 = assembly.split(',')
             opcode, operand1 = opcode_operand1.strip().split(' ')
 
             self.opcode = opcode.strip()
-            self.operand1 = operand1.strip()
-            self.operand2 = operand2.strip()
-        else:
-            try:
+            self.op1 = operand1.strip()
+            self.op2 = operand2.strip()
+
+        elif comma_count == 2:  # 3 operands
+            opcode_operand1, operand2, operand3 = assembly.split(',')
+            opcode, operand1 = opcode_operand1.strip().split(' ')
+            self.opcode = opcode.strip()
+            self.op1 = operand1.strip()
+            self.op2 = operand2.strip()
+            self.op3 = operand3.strip()
+        else:   # Single or no operand
+            if assembly.count(' ') == 1:  # Single operand
                 opcode, operand1 = assembly.split(' ')
-                self.opcode, self.operand1 = opcode.strip(), operand1.strip()
+                self.opcode, self.op1 = opcode.strip(), operand1.strip()
                 self.type = INSTR_TYPE_BRANCH
-            except ValueError:
+            else:
                 if "ret" in assembly:
                     self.opcode = "ret"
                     self.type = INSTR_TYPE_BRANCH
-                elif "nop" in assembly:
-                    self.opcode = "nop"
+                else:
+                    self.opcode = assembly
 
     def __str__(self):
         s = self.opcode + " "
-        if self.operand1 is not None:
-            s += self.operand1
-            if self.operand2 is not None:
-                s += ", " + self.operand2
+        if self.op1 is not None:
+            s += self.op1
+            if self.op2 is not None:
+                s += ", " + self.op2
         return s
 
     def __repr__(self):
