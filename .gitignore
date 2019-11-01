@@ -1,0 +1,6 @@
+*.png
+*.drawio
+.idea/
+__pycache__/
+venv/
+
