@@ -20,14 +20,15 @@ bg 16
 
 # Compute the product
 movi r0, 0      # src1
-movi r1, 256    # src2
-movi r2, 256    # Length
+movi r1, 256    # src2 and length
+movi r2, 0      # Index
 movi r3, 0      # Result
-ldr r11, r0     # val1
-ldr r12, r1     # val2
+ldr r11, r0, r2 # val1
+ldr r12, r1, r2 # val2
 mul r11, r12    # val1 + val2
 add r3, r11     # s = s + val1 + val2
-addi r0, 1      # src1++
-addi r1, 1      # src2++
-cmp r2, r0
+addi r2, 1      # index++
+cmp r1, r2
 bg 26          # sum([k for k in range(256)]) = 0x7f80
+
+hlt

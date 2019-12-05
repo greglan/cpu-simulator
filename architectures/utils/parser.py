@@ -60,11 +60,13 @@ class Instruction:
                     self.opcode = assembly
 
     def __str__(self):
-        s = self.opcode + " "
+        s = self.opcode
         if self.op1 is not None:
-            s += self.op1
+            s += " " + self.op1
             if self.op2 is not None:
                 s += ", " + self.op2
+                if self.op3 is not None:
+                    s += ", " + self.op3
         return s
 
     def __repr__(self):
@@ -79,3 +81,4 @@ class Program(list):
         for line in file:
             self.append(Instruction(line))
         file.close()
+        self.end = len(self)

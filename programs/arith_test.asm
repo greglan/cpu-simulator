@@ -22,3 +22,5 @@ mov r10, r9
 movi r11, 2
 lsl r9, r11     # r9 = 4 << 2 = 16 = 0x10
 lsr r10, r11    # r10 = 4 >> 2 = 1
+
+hlt

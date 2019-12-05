@@ -1,4 +1,4 @@
-from parser import Program
+from architectures.utils.parser import Program
 from architectures.scalar_cpu import ScalarCPU
 
 

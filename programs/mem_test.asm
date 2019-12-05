@@ -33,3 +33,5 @@ add r3, r11     # s = s + val1 + val2
 addi r4, 1      # i++
 cmp r2, r4
 bg 29          # 255 * 255 = 0xfe01
+
+hlt

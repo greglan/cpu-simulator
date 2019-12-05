@@ -1,6 +1,13 @@
-from parser import Instruction
-
+from architectures.utils.parser import Instruction
 N_REG = 13
+
+
+class Memory(list):
+    def __init__(self, size):
+        super(Memory, self).__init__()
+        self.size = size
+        for i in range(size):
+            self.append(0)
 
 
 class ScalarCPU:
@@ -10,8 +17,8 @@ class ScalarCPU:
         self.clk = 0  # Clock cycles
         self.instructions = 0  # Number of instructions executed
 
-        keys = ["r"+str(i) for i in range(N_REG)]
-        self.reg = {key: 0 for key in keys}
+        reg_keys = ["r"+str(i) for i in range(N_REG)]
+        self.reg = {key: 0 for key in reg_keys}
         self.pc = 1
         self.zflag = 0  # Zero flag
         self.gflag = 0  # Greater than flag
@@ -153,11 +160,3 @@ class ScalarCPU:
         s += "Number of instructions: %d\n" % self.instructions
         s += "Number of instructions per cycle: %.04f\n" % (self.instructions/self.clk)
         return s
-
-
-class Memory(list):
-    def __init__(self, size):
-        super(Memory, self).__init__()
-        self.size = size
-        for i in range(size):
-            self.append(0)
