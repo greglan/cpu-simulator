@@ -12,13 +12,22 @@ class TestParser(TestCase):
 
         str_instr = "ldr r0, r1, r4  # Comment"
         instr = Instruction(str_instr)
-        self.assertEqual(instr.op3, "r4")
+        self.assertEqual("r4", instr.op3)
         self.assertEqual("ldr r0, r1, r4", str(instr))
 
         str_instr = "ret  # Comment"
         instr = Instruction(str_instr)
-        self.assertEqual(instr.op1, None)
+        self.assertEqual(None, instr.op1)
+        self.assertEqual(None, instr.op2)
+        self.assertEqual(None, instr.op3)
         self.assertEqual("ret", str(instr))
+
+        str_instr = "wait"
+        instr = Instruction(str_instr)
+        self.assertEqual(None, instr.op1)
+        self.assertEqual(None, instr.op2)
+        self.assertEqual(None, instr.op3)
+        self.assertEqual("wait", str(instr))
 
     def test_program_parsing(self):
         # prog = Program("programs/arith_test.asm")

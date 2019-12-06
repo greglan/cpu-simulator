@@ -18,8 +18,8 @@ class Instruction:
         :type assembly: str
         :return: None
         """
-        if assembly[0] == '#' or assembly == '\n':  # Start with a comment or empty line, so insert NOP
-            self.opcode = "nop"
+        if assembly[0] == '#' or assembly == '\n':  # Start with a comment or empty line, so insert WAIT
+            self.opcode = "wait"
             return
 
         # Remove any comment

@@ -49,16 +49,18 @@ class RegisterBank:
             self.current[reg] = self.next[reg]
 
     def __str__(self):
-        s = "Current\t\t\t\tNext\n"
+        s = ""
 
         # Iterate over the general purpose registers
         for gp_reg in range(self.n_regs-3):
-            s += "%s: 0x%08x\n" % ("r%02d" % gp_reg, self.current["r%d" % gp_reg])
+            s += "%s: 0x%08x\t" % ("r%02d" % gp_reg, self.current["r%d" % gp_reg])
+            if gp_reg == 6:
+                s += "\n"
 
         # Other registers
-        s += "pc: 0x%x\n" % self.current["pc"]
-        s += "zflag: 0x%x\n" % self.current["zflag"]
-        s += "gflag: 0x%x\n" % self.current["zflag"]
+        s += "\npc: 0x%x" % self.current["pc"]
+        s += "zflag: 0x%x\t" % self.current["zflag"]
+        s += "gflag: 0x%x\t" % self.current["zflag"]
 
         return s
 

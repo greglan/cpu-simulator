@@ -12,7 +12,5 @@ it is easier to compare with the case of no pipeline.
 * GCD benchmark
 * RSA benchmark
 * Ideally, all the benchmarks should be done before implementing the CPU ?
-* When doing a branch, should clear the pipeline
-* Clock count should start as soon as the program starts: fetch takes a clock cycle
-* Add an additional "wait" instruction for stalling the pipeline ?
 * Current stack implementation makes the code weird: must pop() from stack.next else bug
+* Other memory access: check states
