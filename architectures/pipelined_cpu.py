@@ -8,9 +8,10 @@ class PipelinedCPU:
         self.mem = Memory(512)
         self.stack = Stack()
         self.prog = None
-        self.clk = 0  # Clock cycles
-        self.clk_inc = 0  # Amount of clock cycles to stall the pipeline
-        self.instructions = 0  # Number of instructions executed
+        self.clk = 0            # Total number of clock cycles
+        self.clk_inc = 0        # Amount of clock cycles to stall the pipeline
+        self.stall_count = 0    # Amount of clock cycles to stall
+        self.instructions = 0   # Number of instructions executed
 
         self.pipeline = FetchDecodeExecutePipeline()
         self.reg = RegisterBank(N_REG)
@@ -58,6 +59,8 @@ class PipelinedCPU:
     def __pipeline_exec(self, instr):
         if instr.opcode == "nop":
             self.reg.next["pc"] = self.reg.current["pc"] + 1
+        elif instr.opcode == "stall":
+            pass
         elif instr.opcode == "mov":
             self.reg.next[instr.op1] = self.reg.current[instr.op2]
             self.reg.next["pc"] = self.reg.current["pc"] + 1

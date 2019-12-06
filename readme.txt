@@ -16,4 +16,3 @@ it is easier to compare with the case of no pipeline.
 * Clock count should start as soon as the program starts: fetch takes a clock cycle
 * Add an additional "wait" instruction for stalling the pipeline ?
 * Current stack implementation makes the code weird: must pop() from stack.next else bug
-* Pad register values so that all is aligned always

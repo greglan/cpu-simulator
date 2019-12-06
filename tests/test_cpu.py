@@ -40,7 +40,7 @@ class TestCPU(TestCase):
 
         prog = Program("programs/factorial.asm")
         cpu.run(prog)
-        # print(cpu)
+        print(cpu)
         self.assertEqual(720, cpu.reg.current['r0'])
 
         prog = Program("programs/scalar_product.asm")
