@@ -48,10 +48,10 @@ class TestCPU(TestCase):
         # cpu.run()
         # self.assertEqual(0xfe01, cpu.reg.current['r3'])
 
-        # prog = Program("programs/factorial.asm")
-        # cpu = cpu_type(prog)
-        # cpu.run()
-        # self.assertEqual(720, cpu.reg.current['r0'])
+        prog = Program("programs/factorial.asm")
+        cpu = cpu_type(prog)
+        cpu.run()
+        self.assertEqual(720, cpu.reg.current['r0'])
 
         # prog = Program("programs/scalar_product.asm")
         # cpu = cpu_type(prog)

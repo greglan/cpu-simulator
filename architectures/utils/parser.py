@@ -5,7 +5,7 @@ INSTR_TYPE_MEM = 2      # Load and stores
 INSTR_TYPE_BRANCH = 4   # Branches
 
 
-class Instruction:
+class Instruction(object):
     def __init__(self, assembly):
         self.opcode = None
         self.op1 = None
@@ -85,7 +85,7 @@ class Instruction:
         """
         Checks that the given string is a register operand
         """
-        return re.search("r[0-31]", operand) is not None
+        return re.search("r[0-9]+", operand) is not None
 
     def __str__(self):
         s = self.opcode
@@ -100,6 +100,8 @@ class Instruction:
     def __repr__(self):
         return self.__str__()
 
+    def __equ__(self, other):
+        return str(other) == self.__str__()
 
 class Program(list):
     def __init__(self, filename):

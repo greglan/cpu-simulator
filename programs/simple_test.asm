@@ -1,4 +1,4 @@
-# Computes the gcd of two numbers
+# Simple sequential program
 movi r0, 45     # a
 movi r1, 40     # b
 mov r2, r0

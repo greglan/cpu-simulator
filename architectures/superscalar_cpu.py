@@ -1,6 +1,6 @@
 from architectures import N_REG
 from architectures.utils.parser import INSTR_TYPE_MEM
-from architectures.utils.components import Memory, Stack, RegisterBank, ALU, LoadStoreUnit, BranchUnit
+from architectures.utils.components import Memory, Stack, RegisterBank
 from architectures.pipelines import SuperScalarPipeline
 
 
@@ -10,14 +10,9 @@ class SuperScalarCPU:
         self.stack = Stack()
         self.prog = program
         self.clk = 0            # Total number of clock cycles
-        self.clk_inc = 0        # Amount of clock cycles to stall the pipeline
-        self.stall_count = 0    # Amount of clock cycles to stall
         self.instructions = 0   # Number of instructions executed
 
         self.reg = RegisterBank(N_REG)
-        self.alu = [ALU(self.reg) for alu in range(n_alu)]
-        self.lsu = LoadStoreUnit(self.reg, self.mem, self.stack)
-        self.bu = BranchUnit(self.reg, self.stack)
         self.alu_ready = n_alu-1
         self.lsu_ready = True
         self.bu_ready = True
@@ -26,15 +21,22 @@ class SuperScalarCPU:
         self.halted = False
 
     def run(self):
+        self.pipeline.fetch()
+        self.pipeline.sync()
+        self.clk += 1
+
         while not self.halted:
             if not self.pipeline.exec_stalled:
                 # Execute first so that the scoreboard can be updated ~ immediate feedback (bypass)
                 pc_modified = self.__exec_instructions()
-                self.pipeline.decode()  # Update the next execute state (decode instructions, check for dependencies)
-                if not self.pipeline.decode_stalled:
-                    # if not pc_modified:
-                    self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
-                    self.pipeline.fetch()   # Update the next fetch state
+
+                if not pc_modified:
+                    self.pipeline.decode()
+                    if not self.pipeline.decode_stalled:
+                        self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
+                        self.pipeline.fetch()   # Update the next fetch state
+                else:
+                    self.pipeline.fetch()
 
                 # Sync components
                 self.pipeline.sync()

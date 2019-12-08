@@ -14,6 +14,7 @@ class TestParser(TestCase):
         instr = Instruction(str_instr)
         self.assertEqual("r4", instr.op3)
         self.assertEqual("ldr r0, r1, r4", str(instr))
+        self.assertTrue("r4" in instr.reg_operands)
 
         str_instr = "ret  # Comment"
         instr = Instruction(str_instr)

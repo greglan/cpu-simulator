@@ -63,16 +63,19 @@ class SuperScalarPipeline:
             self.current[stage] = [None for instruction in range(width)]
             self.next[stage] = [None for instruction in range(width)]
 
-    def fetch(self):
+    def fetch(self, pc="next"):
         """
         Update the next fetch state by fetching *width* instructions from the program memory
         :return: None
         """
         for i in range(self.width):
             # pc + i may be out of range. Fix it by padding with None instructions
-            instr_addr = self.reg.current["pc"] + i
+            if pc == "current":
+                instr_addr = self.reg.current["pc"] + i
+            else:
+                instr_addr = self.reg.next["pc"] + i
             if instr_addr < self.program.end:   # pc + i in range
-                self.next["fetch"][i] = self.program[self.reg.current["pc"] + i]
+                self.next["fetch"][i] = deepcopy(self.program[instr_addr])
             else:
                 self.next["fetch"][i] = None    # Padding
 

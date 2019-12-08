@@ -71,7 +71,7 @@ class RegisterBank:
                 s += "\n"
 
         # Other registers
-        s += "\npc: 0x%x" % self.current["pc"]
+        s += "\npc: 0x%x\t" % self.current["pc"]
         s += "zflag: 0x%x\t" % self.current["zflag"]
         s += "gflag: 0x%x\t" % self.current["zflag"]
 
@@ -90,21 +90,3 @@ class RegisterBank:
         s += "zflag: 0x%x\t\t\tzflag: 0x%x\n" % (self.current["zflag"], self.next["zflag"])
         s += "gflag: 0x%x\t\t\tgflag: 0x%x\n" % (self.current["gflag"], self.next["gflag"])
         return s
-
-
-class ALU:
-    def __init__(self, register_bank):
-        self.reg = register_bank
-
-
-class LoadStoreUnit:
-    def __init__(self, register_bank, memory, stack):
-        self.reg = register_bank
-        self.mem = memory
-        self.stack = stack
-
-
-class BranchUnit:
-    def __init__(self, register_bank, stack):
-        self.reg = register_bank
-        self.stack = stack
