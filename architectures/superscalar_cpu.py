@@ -124,13 +124,11 @@ class SuperScalarCPU:
                     self.reg.next["pc"] = int(instr.op1) - 1
                     pc_modified = True
                     self.pipeline.clear()
-                    self.reg.next["zflag"] = False
             elif instr.opcode == "bg":
                 if self.reg.current["gflag"]:
                     self.reg.next["pc"] = int(instr.op1) - 1
                     pc_modified = True
                     self.pipeline.clear()
-                    self.reg.next["gflag"] = False
             elif instr.opcode == "hlt":
                 self.halted = True
             else:
@@ -151,5 +149,5 @@ class SuperScalarCPU:
         s += "Clock cycles: %d\n" % self.clk
         s += "Number of instructions: %d\n" % self.instructions
         if self.clk != 0:
-            s += "Number of instructions per cycle: %.04f\n" % (self.instructions / self.clk)
+            s += "Number of instructions per cycle: %.02f\n" % (self.instructions / self.clk)
         return s

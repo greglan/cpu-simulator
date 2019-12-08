@@ -62,5 +62,6 @@ class TestCPU(TestCase):
         cpu = cpu_type(prog)
         cpu.run()
         self.assertEqual(5, cpu.reg.current['r0'])
+        print(cpu)
 
 

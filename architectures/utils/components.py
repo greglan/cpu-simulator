@@ -71,9 +71,9 @@ class RegisterBank:
                 s += "\n"
 
         # Other registers
-        s += "\npc: 0x%x\t" % self.current["pc"]
-        s += "zflag: 0x%x\t" % self.current["zflag"]
-        s += "gflag: 0x%x\t" % self.current["zflag"]
+        s += "\npc:  0x08%x\t\t" % self.current["pc"]
+        s += "zflag: 0x%x\t\t" % self.current["zflag"]
+        s += "gflag: 0x%x\t\n" % self.current["zflag"]
 
         return s
 
