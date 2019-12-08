@@ -92,7 +92,10 @@ class SuperScalarPipeline:
         # Compute dependencies
         for i, instruction in enumerate(instructions):
             if instruction is not None and instruction.type == INSTR_TYPE_BRANCH:
-                ready_instructions.append((i, instruction))
+                # Break if not the first instruction, because we need the compare flags
+                # to be updated to take the decision
+                if instruction.opcode in ["b", "br", "ret"] or i == 0:    # Non conditional
+                    ready_instructions.append((i, instruction))
                 break   # Exit the loop because a branch instruction is always a dependency
             if self.__check_instruction_ready(instruction):
                 self.__lock_instruction_resources(instruction)
@@ -102,18 +105,18 @@ class SuperScalarPipeline:
 
         # Check that there is enough UEs
         issued_instructions = []    # List of instruction to issue to the "execute" stage
-        for (i, instr) in ready_instructions:
-            if instr is None:
+        for (i, instruction) in ready_instructions:
+            if instruction is None or instruction.opcode == "nop":
                 # TODO: add statistics
-                issued_instructions.append((i, instr))
-            elif instr.type == INSTR_TYPE_ALU and self.alu_ready > 0:
-                issued_instructions.append((i, instr))
+                issued_instructions.append((i, instruction))
+            elif instruction.type == INSTR_TYPE_ALU and self.alu_ready > 0:
+                issued_instructions.append((i, instruction))
                 self.alu_ready -= 1
-            elif instr.type == INSTR_TYPE_MEM and self.lsu_ready:
-                issued_instructions.append((i, instr))
+            elif instruction.type == INSTR_TYPE_MEM and self.lsu_ready:
+                issued_instructions.append((i, instruction))
                 self.lsu_ready = False
             elif self.bu_ready:
-                issued_instructions.append((i, instr))
+                issued_instructions.append((i, instruction))
                 self.bu_ready = False
             else:
                 break   # Necessary for in-order issue
@@ -123,57 +126,60 @@ class SuperScalarPipeline:
 
         # If only some of the instructions can be executed, create a custom "fetch" and "decode" stage
         if self.decode_stalled:
-            self.next["fetch"] = deepcopy(self.current["fetch"])  # Stall fetch stage
+            # Stall fetch stage
+            self.next["fetch"] = deepcopy(self.current["fetch"])
 
-            # Replace issued instructions from the "decode" stage by None
+            # Move the non-issued instructions to the top of the queue
             self.__reset_next_stage("decode")   # Init to None
+            k = 0
             for i, instruction in enumerate(instructions):
                 if (i, instruction) not in issued_instructions:  # Add unissued instructions
-                    self.next["decode"][i] = instruction
+                    self.next["decode"][k] = instruction
+                    k += 1
 
         # Update the next execute stage
         self.__reset_next_stage("execute")
         for (i, issued_instruction) in issued_instructions:
             self.next["execute"][i] = issued_instruction
 
-    def __check_instruction_ready(self, instruction):
+    def __check_instruction_ready(self, instruction: Instruction):
         """
         Check that all operands are ready in the scoreboard.
         Use the list of non-None operands
         :return: bool
         """
-        if instruction is None:
+        if instruction is None or instruction.opcode == "nop":
             return True
 
         table = self.reg.scoreboard
         ready = True
-        for operand in instruction.operands:
+        for operand in instruction.reg_operands:
             try:
                 ready = ready and table[operand]
             except KeyError:    # Probably an immediate value. Pass. TODO: use regex
                 pass
         return ready
 
-    def __lock_instruction_resources(self, instruction):
+    def __lock_instruction_resources(self, instruction: Instruction):
         """
         Use the list of non-None operands
         """
-        if instruction is None:
+        if instruction is None or instruction.opcode == "nop":
             return
 
         table = self.reg.scoreboard
-        for operand in instruction.operands:
+        for operand in instruction.reg_operands:
             table[operand] = False
 
-    def release_instruction_resources(self, instruction):
+    def release_instruction_resources(self, instruction: Instruction):
         """
         Use the list of non-None operands
         """
-        if instruction is None:
+        if instruction is None or instruction.opcode == "nop":
             return
 
         table = self.reg.scoreboard
-        for operand in instruction.operands:
+        for operand in instruction.reg_operands:
             table[operand] = True
 
     def __reset_next_stage(self, stage):

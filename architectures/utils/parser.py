@@ -1,3 +1,5 @@
+import re
+
 INSTR_TYPE_ALU = 1    # Logical and arith operations
 INSTR_TYPE_MEM = 2      # Load and stores
 INSTR_TYPE_BRANCH = 4   # Branches
@@ -9,7 +11,7 @@ class Instruction:
         self.op1 = None
         self.op2 = None
         self.op3 = None
-        self.operands = []      # Contains a list of non-None operands
+        self.reg_operands = []      # Contains a list of non-None operands excluding immediate values
         self.type = None
         self.parse(assembly)
 
@@ -40,7 +42,12 @@ class Instruction:
             self.opcode = opcode.strip()
             self.op1 = operand1.strip()
             self.op2 = operand2.strip()
-            self.operands = [self.op1, self.op2]
+
+            # First operand should always be a register, don't check that
+            if self.__check_operand_matches_reg(self.op2):
+                self.reg_operands = [self.op1, self.op2]
+            else:
+                self.reg_operands = [self.op1]
         elif comma_count == 2:  # 3 operands
             opcode_operand1, operand2, operand3 = assembly.split(',')
             opcode, operand1 = opcode_operand1.strip().split(' ')
@@ -48,18 +55,24 @@ class Instruction:
             self.op1 = operand1.strip()
             self.op2 = operand2.strip()
             self.op3 = operand3.strip()
-            self.operands = [self.op1, self.op2, self.op3]
+
+            # First and second operand should always be registers, don't check them
+            if self.__check_operand_matches_reg(self.op3):
+                self.reg_operands = [self.op1, self.op2, self.op3]
+            else:
+                self.reg_operands = [self.op1, self.op2]
+
         else:   # Single or no operand
             if assembly.count(' ') == 1:  # Single operand
                 opcode, operand1 = assembly.split(' ')
                 self.opcode, self.op1 = opcode.strip(), operand1.strip()
-                self.operands = [self.op1]
             else:
                 if "ret" in assembly:
                     self.opcode = "ret"
                 else:
                     self.opcode = assembly
-                self.operands = []  # Useless because default value.
+            # There is no single-operand instructions taking a register as operand
+            self.reg_operands = []  # Useless because default value.
 
         if self.opcode in ["ldr", "str", "push", "pop"]:
             self.type = INSTR_TYPE_MEM
@@ -67,6 +80,12 @@ class Instruction:
             self.type = INSTR_TYPE_BRANCH
         else:
             self.type = INSTR_TYPE_ALU
+
+    def __check_operand_matches_reg(self, operand):
+        """
+        Checks that the given string is a register operand
+        """
+        return re.search("r[0-31]", operand) is not None
 
     def __str__(self):
         s = self.opcode

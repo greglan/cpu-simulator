@@ -32,8 +32,8 @@ class SuperScalarCPU:
                 pc_modified = self.__exec_instructions()
                 self.pipeline.decode()  # Update the next execute state (decode instructions, check for dependencies)
                 if not self.pipeline.decode_stalled:
-                    if not pc_modified:
-                        self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
+                    # if not pc_modified:
+                    self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
                     self.pipeline.fetch()   # Update the next fetch state
 
                 # Sync components
