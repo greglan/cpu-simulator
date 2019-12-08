@@ -60,8 +60,8 @@ class SuperScalarPipeline:
         stages = ["fetch", "decode", "execute"]
 
         for stage in stages:
-            self.current[stage] = [None for instruction in range(width)]
-            self.next[stage] = [None for instruction in range(width)]
+            self.current[stage] = [Instruction("nop") for instruction in range(width)]
+            self.next[stage] = [Instruction("nop") for instruction in range(width)]
 
     def fetch(self, pc="next"):
         """
@@ -77,7 +77,7 @@ class SuperScalarPipeline:
             if instr_addr < self.program.end:   # pc + i in range
                 self.next["fetch"][i] = deepcopy(self.program[instr_addr])
             else:
-                self.next["fetch"][i] = None    # Padding
+                self.next["fetch"][i] = Instruction("dummy")    # Padding
 
     def decode(self):
         """
@@ -94,7 +94,7 @@ class SuperScalarPipeline:
 
         # Compute dependencies
         for i, instruction in enumerate(instructions):
-            if instruction is not None and instruction.type == INSTR_TYPE_BRANCH:
+            if instruction.type == INSTR_TYPE_BRANCH:
                 # Break if not the first instruction, because we need the compare flags
                 # to be updated to take the decision
                 if instruction.opcode in ["b", "br", "ret"] or i == 0:    # Non conditional
@@ -109,7 +109,7 @@ class SuperScalarPipeline:
         # Check that there is enough UEs
         issued_instructions = []    # List of instruction to issue to the "execute" stage
         for (i, instruction) in ready_instructions:
-            if instruction is None or instruction.opcode == "nop":
+            if (instruction.opcode == "nop") or (instruction.opcode == "dummy"):
                 # TODO: add statistics
                 issued_instructions.append((i, instruction))
             elif instruction.type == INSTR_TYPE_ALU and self.alu_ready > 0:
@@ -146,55 +146,41 @@ class SuperScalarPipeline:
             self.next["execute"][i] = issued_instruction
 
     def __check_instruction_ready(self, instruction: Instruction):
-        """
-        Check that all operands are ready in the scoreboard.
-        Use the list of non-None operands
-        :return: bool
-        """
-        if instruction is None or instruction.opcode == "nop":
-            return True
+        # if (instruction.op1 is None) or (not check_operand_matches_reg(instruction.op1)):
+        # if instruction.op1 is None:
+        #     return True     # Destination operand is a immediate value
 
-        table = self.reg.scoreboard
         ready = True
         for operand in instruction.reg_operands:
-            try:
-                ready = ready and table[operand]
-            except KeyError:    # Probably an immediate value. Pass. TODO: use regex
-                pass
+            ready = ready and self.reg.scoreboard[operand]
         return ready
 
     def __lock_instruction_resources(self, instruction: Instruction):
-        """
-        Use the list of non-None operands
-        """
-        if instruction is None or instruction.opcode == "nop":
-            return
+        # if (instruction.op1 is None) or (not check_operand_matches_reg(instruction.op1)):
+        # if instruction.op1 is None:
+        #     return     # Destination operand is a immediate value
 
-        table = self.reg.scoreboard
         for operand in instruction.reg_operands:
-            table[operand] = False
+            self.reg.scoreboard[operand] = False
 
     def release_instruction_resources(self, instruction: Instruction):
-        """
-        Use the list of non-None operands
-        """
-        if instruction is None or instruction.opcode == "nop":
-            return
+        # if (instruction.op1 is None) or (not check_operand_matches_reg(instruction.op1)):
+        # if instruction.op1 is None:
+        #     return     # Destination operand is a immediate value
 
-        table = self.reg.scoreboard
         for operand in instruction.reg_operands:
-            table[operand] = True
+            self.reg.scoreboard[operand] = True
 
     def __reset_next_stage(self, stage):
-        self.next[stage] = [None for instruction in range(self.width)]
+        self.next[stage] = [Instruction("nop") for instruction in range(self.width)]
 
     def clear(self):
         self.decode_stalled = False
         stages = ["fetch", "decode", "execute"]
 
         for stage in stages:
-            self.current[stage] = [None for instruction in range(self.width)]
-            self.next[stage] = [None for instruction in range(self.width)]
+            self.current[stage] = [Instruction("nop") for instruction in range(self.width)]
+            self.next[stage] = [Instruction("nop") for instruction in range(self.width)]
 
     def update(self):
         """

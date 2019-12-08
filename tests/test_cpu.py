@@ -25,7 +25,6 @@ class TestCPU(TestCase):
         # self.assertEqual(45, cpu.reg.current["r0"])
         # self.assertEqual(40, cpu.reg.current["r1"])
         # self.assertEqual(5, cpu.reg.current["r2"])
-        # print(cpu)
 
         # prog = Program("programs/arith_test.asm")
         # cpu = cpu_type(prog)
@@ -48,8 +47,8 @@ class TestCPU(TestCase):
         # cpu.run()
         # self.assertEqual(0xfe01, cpu.reg.current['r3'])
 
-        # prog = Program("programs/factorial.asm")
-        # cpu = cpu_type(prog)
+        prog = Program("programs/factorial.asm")
+        cpu = cpu_type(prog)
         # cpu.run()
         # self.assertEqual(720, cpu.reg.current['r0'])
 
@@ -62,6 +61,6 @@ class TestCPU(TestCase):
         cpu = cpu_type(prog)
         cpu.run()
         self.assertEqual(5, cpu.reg.current['r0'])
-        print(cpu)
+        # print(cpu)
 
 

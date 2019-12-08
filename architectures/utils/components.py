@@ -44,7 +44,7 @@ class RegisterBank:
         self.n_regs = n_regs + 3  # Add pc, zero flag and greater than flag
         self.current = {key: 0 for key in self.reg_keys}
         self.next = {key: 0 for key in self.reg_keys}
-        self.scoreboard = {key: True for key in self.reg_keys[:-4]}  # Scoreboard only for GP registers
+        self.scoreboard = {key: True for key in self.reg_keys[:-3]}  # Scoreboard only for GP registers
 
     def clear(self):
         self.current = {key: 0 for key in self.reg_keys}

@@ -5,7 +5,7 @@ from architectures.pipelines import SuperScalarPipeline
 
 
 class SuperScalarCPU:
-    def __init__(self, program, n_alu=2):
+    def __init__(self, program, n_alu=4):
         self.mem = Memory(512)
         self.stack = Stack()
         self.prog = program
@@ -56,10 +56,10 @@ class SuperScalarCPU:
         pc_modified = False  # Have executed any branch instruction ?
 
         for instr in self.pipeline.current["execute"]:
-            if instr is None:
-                pass
-            elif instr.opcode == "nop":
+            if instr.opcode == "dummy":
                 self.clk -= 1  # Compensate the clock increase
+            elif instr.opcode == "nop":
+                pass
             elif instr.opcode == "mov":
                 self.reg.next[instr.op1] = self.reg.current[instr.op2]
             elif instr.opcode == "movi":
@@ -134,10 +134,10 @@ class SuperScalarCPU:
             else:
                 raise Exception("Unknown instruction: %s" % str(instr))
 
-            if (instr is not None) and (instr.type == INSTR_TYPE_MEM):
+            if instr.type == INSTR_TYPE_MEM:
                 self.pipeline.exec_stalled = True
 
-            if (instr is not None) and (instr.opcode != "nop"):
+            if (instr.opcode != "nop") and (instr != "dummy"):
                 self.instructions += 1
 
             self.pipeline.release_instruction_resources(instr)

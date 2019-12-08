@@ -15,4 +15,3 @@ it is easier to compare with the case of no pipeline.
 * Current stack implementation makes the code weird: must pop() from stack.next else bug
 * Other memory access: check states
 * Change terminology: NOP/WAIT/STALL instructions and None. When fixing None, can remove many "if instr is not None" checks
-* Round the statistics

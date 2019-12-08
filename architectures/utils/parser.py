@@ -5,6 +5,13 @@ INSTR_TYPE_MEM = 2      # Load and stores
 INSTR_TYPE_BRANCH = 4   # Branches
 
 
+def check_operand_matches_reg(operand):
+    """
+    Checks that the given string is a register operand
+    """
+    return re.search("r[0-9]+", operand) is not None
+
+
 class Instruction(object):
     def __init__(self, assembly, line=None):
         self.opcode = None
@@ -23,7 +30,7 @@ class Instruction(object):
         :return: None
         """
         if assembly[0] == '#' or assembly == '\n':  # Start with a comment or empty line, so insert WAIT
-            self.opcode = "nop"
+            self.opcode = "dummy"
             return
 
         # Remove any comment
@@ -45,7 +52,7 @@ class Instruction(object):
             self.op2 = operand2.strip()
 
             # First operand should always be a register, don't check that
-            if self.__check_operand_matches_reg(self.op2):
+            if check_operand_matches_reg(self.op2):
                 self.reg_operands = [self.op1, self.op2]
             else:
                 self.reg_operands = [self.op1]
@@ -58,7 +65,7 @@ class Instruction(object):
             self.op3 = operand3.strip()
 
             # First and second operand should always be registers, don't check them
-            if self.__check_operand_matches_reg(self.op3):
+            if check_operand_matches_reg(self.op3):
                 self.reg_operands = [self.op1, self.op2, self.op3]
             else:
                 self.reg_operands = [self.op1, self.op2]
@@ -67,7 +74,7 @@ class Instruction(object):
             if assembly.count(' ') == 1:  # Single operand
                 opcode, operand1 = assembly.split(' ')
                 self.opcode, self.op1 = opcode.strip(), operand1.strip()
-                if self.__check_operand_matches_reg(self.op1):
+                if check_operand_matches_reg(self.op1):
                     self.reg_operands = [self.op1]
             else:
                 if "ret" in assembly:
@@ -81,12 +88,6 @@ class Instruction(object):
             self.type = INSTR_TYPE_BRANCH
         else:
             self.type = INSTR_TYPE_ALU
-
-    def __check_operand_matches_reg(self, operand):
-        """
-        Checks that the given string is a register operand
-        """
-        return re.search("r[0-9]+", operand) is not None
 
     def __str__(self):
         s = self.opcode
