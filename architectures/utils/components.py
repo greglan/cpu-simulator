@@ -1,3 +1,6 @@
+from architectures import MEM_SIZE
+
+
 class Memory:
     def __init__(self, size):
         self.size = size
@@ -15,6 +18,9 @@ class Memory:
         for cell in range(self.size):
             self.current[cell] = self.next[cell]
 
+    def sync(self):
+        self.update()
+
 
 class Stack:
     def __init__(self):
@@ -28,6 +34,9 @@ class Stack:
         """
         self.current = [val for val in self.next]
 
+    def sync(self):
+        self.update()
+
 
 class RegisterBank:
     def __init__(self, n_regs):
@@ -35,6 +44,7 @@ class RegisterBank:
         self.n_regs = n_regs + 3  # Add pc, zero flag and greater than flag
         self.current = {key: 0 for key in self.reg_keys}
         self.next = {key: 0 for key in self.reg_keys}
+        self.scoreboard = [True for reg in self.reg_keys[:-4]]  # Scoreboard only for GP registers
 
     def clear(self):
         self.current = {key: 0 for key in self.reg_keys}
@@ -47,6 +57,9 @@ class RegisterBank:
         """
         for reg in self.reg_keys:
             self.current[reg] = self.next[reg]
+
+    def sync(self):
+        self.update()
 
     def __str__(self):
         s = ""
@@ -77,3 +90,21 @@ class RegisterBank:
         s += "zflag: 0x%x\t\t\tzflag: 0x%x\n" % (self.current["zflag"], self.next["zflag"])
         s += "gflag: 0x%x\t\t\tgflag: 0x%x\n" % (self.current["gflag"], self.next["gflag"])
         return s
+
+
+class ALU:
+    def __init__(self, register_bank):
+        self.reg = register_bank
+
+
+class LoadStoreUnit:
+    def __init__(self, register_bank, memory, stack):
+        self.reg = register_bank
+        self.mem = memory
+        self.stack = stack
+
+
+class BranchUnit:
+    def __init__(self, register_bank, stack):
+        self.reg = register_bank
+        self.stack = stack

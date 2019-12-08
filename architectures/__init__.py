@@ -1,0 +1,2 @@
+N_REG = 13
+MEM_SIZE = 512

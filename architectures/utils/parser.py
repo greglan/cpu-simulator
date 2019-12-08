@@ -1,4 +1,4 @@
-INSTR_TYPE_ARITH = 1    # Logical and arith operations
+INSTR_TYPE_ALU = 1    # Logical and arith operations
 INSTR_TYPE_MEM = 2      # Load and stores
 INSTR_TYPE_BRANCH = 4   # Branches
 
@@ -9,6 +9,7 @@ class Instruction:
         self.op1 = None
         self.op2 = None
         self.op3 = None
+        self.operands = []      # Contains a list of non-None operands
         self.type = None
         self.parse(assembly)
 
@@ -19,7 +20,7 @@ class Instruction:
         :return: None
         """
         if assembly[0] == '#' or assembly == '\n':  # Start with a comment or empty line, so insert WAIT
-            self.opcode = "wait"
+            self.opcode = "nop"
             return
 
         # Remove any comment
@@ -39,7 +40,7 @@ class Instruction:
             self.opcode = opcode.strip()
             self.op1 = operand1.strip()
             self.op2 = operand2.strip()
-
+            self.operands = [self.op1, self.op2]
         elif comma_count == 2:  # 3 operands
             opcode_operand1, operand2, operand3 = assembly.split(',')
             opcode, operand1 = opcode_operand1.strip().split(' ')
@@ -47,17 +48,25 @@ class Instruction:
             self.op1 = operand1.strip()
             self.op2 = operand2.strip()
             self.op3 = operand3.strip()
+            self.operands = [self.op1, self.op2, self.op3]
         else:   # Single or no operand
             if assembly.count(' ') == 1:  # Single operand
                 opcode, operand1 = assembly.split(' ')
                 self.opcode, self.op1 = opcode.strip(), operand1.strip()
-                self.type = INSTR_TYPE_BRANCH
+                self.operands = [self.op1]
             else:
                 if "ret" in assembly:
                     self.opcode = "ret"
-                    self.type = INSTR_TYPE_BRANCH
                 else:
                     self.opcode = assembly
+                self.operands = []  # Useless because default value.
+
+        if self.opcode in ["ldr", "str", "push", "pop"]:
+            self.type = INSTR_TYPE_MEM
+        elif self.opcode in ["b", "br", "ret", "be", "bg"]:
+            self.type = INSTR_TYPE_BRANCH
+        else:
+            self.type = INSTR_TYPE_ALU
 
     def __str__(self):
         s = self.opcode
@@ -79,6 +88,9 @@ class Program(list):
         file = open(filename, 'r')
 
         for line in file:
-            self.append(Instruction(line))
+            if line not in ["", "#" "\n"]:
+                self.append(Instruction(line))
+            else:
+                self.append(None)
         file.close()
         self.end = len(self)

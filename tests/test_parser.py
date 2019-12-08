@@ -22,20 +22,21 @@ class TestParser(TestCase):
         self.assertEqual(None, instr.op3)
         self.assertEqual("ret", str(instr))
 
-        str_instr = "wait"
+        str_instr = "#"
         instr = Instruction(str_instr)
         self.assertEqual(None, instr.op1)
         self.assertEqual(None, instr.op2)
         self.assertEqual(None, instr.op3)
-        self.assertEqual("wait", str(instr))
+        self.assertEqual("nop", str(instr))
 
     def test_program_parsing(self):
         # prog = Program("programs/arith_test.asm")
         # prog = Program("programs/branches_test.asm")
-        prog = Program("programs/mem_test.asm")
-
-        print("Program has %d lines" % len(prog))
-        for instruction in prog:
-            print("(%s, %s, %s, %s)" % (instruction.opcode, instruction.op1, instruction.op2, instruction.op3))
-
-        self.assertTrue(True)
+        # prog = Program("programs/mem_test.asm")
+        #
+        # print("Program has %d lines" % len(prog))
+        # for instruction in prog:
+        #     print("(%s, %s, %s, %s)" % (instruction.opcode, instruction.op1, instruction.op2, instruction.op3))
+        #
+        # self.assertTrue(True)
+        pass

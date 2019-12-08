@@ -1,6 +1,6 @@
-from architectures.utils import N_REG
+from architectures import N_REG
 from architectures.utils.components import Memory, Stack, RegisterBank
-from architectures.pipelines import FetchDecodeExecutePipeline
+from architectures.pipelines import SimplePipeline
 
 
 class PipelinedCPU:
@@ -13,7 +13,7 @@ class PipelinedCPU:
         self.stall_count = 0    # Amount of clock cycles to stall
         self.instructions = 0   # Number of instructions executed
 
-        self.pipeline = FetchDecodeExecutePipeline()
+        self.pipeline = SimplePipeline()
         self.reg = RegisterBank(N_REG)
         self.halted = False
 
