@@ -6,13 +6,14 @@ INSTR_TYPE_BRANCH = 4   # Branches
 
 
 class Instruction(object):
-    def __init__(self, assembly):
+    def __init__(self, assembly, line=None):
         self.opcode = None
         self.op1 = None
         self.op2 = None
         self.op3 = None
         self.reg_operands = []      # Contains a list of non-None operands excluding immediate values
         self.type = None
+        self.line = line
         self.parse(assembly)
 
     def parse(self, assembly):
@@ -66,13 +67,13 @@ class Instruction(object):
             if assembly.count(' ') == 1:  # Single operand
                 opcode, operand1 = assembly.split(' ')
                 self.opcode, self.op1 = opcode.strip(), operand1.strip()
+                if self.__check_operand_matches_reg(self.op1):
+                    self.reg_operands = [self.op1]
             else:
                 if "ret" in assembly:
                     self.opcode = "ret"
                 else:
                     self.opcode = assembly
-            # There is no single-operand instructions taking a register as operand
-            self.reg_operands = []  # Useless because default value.
 
         if self.opcode in ["ldr", "str", "push", "pop"]:
             self.type = INSTR_TYPE_MEM
@@ -103,14 +104,15 @@ class Instruction(object):
     def __equ__(self, other):
         return str(other) == self.__str__()
 
+
 class Program(list):
     def __init__(self, filename):
         super(Program, self).__init__()
         file = open(filename, 'r')
 
-        for line in file:
+        for i, line in enumerate(file):
             if line not in ["", "#" "\n"]:
-                self.append(Instruction(line))
+                self.append(Instruction(line, line=i))
             else:
                 self.append(None)
         file.close()

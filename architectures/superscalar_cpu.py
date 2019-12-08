@@ -110,7 +110,8 @@ class SuperScalarCPU:
                 pc_modified = True
                 self.pipeline.clear()
             elif instr.opcode == "br":
-                self.stack.next.append(self.reg.current["pc"] - 2 + 1 - 1)  # Next (PC-2). But pipeline update in PC+1
+                # self.stack.next.append(self.reg.current["pc"] - 2 + 1 - 1)  # Next (PC-2). But pipeline update in PC+1
+                self.stack.next.append(instr.line + 1)  # Line after the line "br" was in the program
                 self.reg.next["pc"] = int(instr.op1) - 1
                 pc_modified = True
                 self.pipeline.clear()
