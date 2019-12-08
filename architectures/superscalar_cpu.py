@@ -140,7 +140,7 @@ class SuperScalarCPU:
 
         # FIXME: are we sure this is the only condition ?
         if pc_not_modified:
-            self.reg.next["pc"] = self.reg.current["pc"] + 1
+            self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
 
     def __str__(self):
         s = str(self.reg)

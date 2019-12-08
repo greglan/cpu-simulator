@@ -85,10 +85,11 @@ class SuperScalarPipeline:
         self.alu_ready = self.width - 1
         self.lsu_ready = True
         self.bu_ready = True
-        instructions = self.current["fetch"]
+        instructions = self.current["decode"]
         ready_instructions = []    # List of instruction to issue to the "execute" stage
 
         # Compute dependencies
+        # FIXME: add branch dependencies
         for i, instruction in enumerate(instructions):
             if self.__check_instruction_ready(instruction):
                 self.__lock_instruction_resources(instruction)
@@ -101,7 +102,7 @@ class SuperScalarPipeline:
         for (i, instr) in ready_instructions:
             if instr is None:
                 # TODO: add statistics
-                pass
+                issued_instructions.append((i, instr))
             elif instr.type == INSTR_TYPE_ALU and self.alu_ready > 0:
                 issued_instructions.append((i, instr))
                 self.alu_ready -= 1
@@ -144,7 +145,10 @@ class SuperScalarPipeline:
         table = self.reg.scoreboard
         ready = True
         for operand in instruction.operands:
-            ready = ready and table[operand]
+            try:
+                ready = ready and table[operand]
+            except KeyError:    # Probably an immediate value. Pass. TODO: use regex
+                pass
         return ready
 
     def __lock_instruction_resources(self, instruction):
@@ -185,9 +189,16 @@ class SuperScalarPipeline:
         Set the current state to the next
         :return: None
         """
-        self.current["execute"] = self.next["execute"]
-        self.current["decode"] = self.current["fetch"]
-        self.current["fetch"] = self.next["fetch"]
+        self.current["execute"] = [instruction for instruction in self.next["execute"]]
+        self.current["decode"] = [instruction for instruction in self.current["fetch"]]
+        self.current["fetch"] = [instruction for instruction in self.next["fetch"]]
 
     def sync(self):
         self.update()
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return "Current: " + str(self.current) + "\nNext: " + str(self.next) + \
+               "\nExec stalled: " + str(self.exec_stalled) + "\nDecode stalled: " + str(self.decode_stalled)
