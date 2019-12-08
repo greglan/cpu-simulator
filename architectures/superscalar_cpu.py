@@ -28,9 +28,12 @@ class SuperScalarCPU:
     def run(self):
         while not self.halted:
             if not self.pipeline.exec_stalled:
-                self.__exec_instructions()  # Distribute the instructions to the different execution units
+                # Execute first so that the scoreboard can be updated ~ immediate feedback (bypass)
+                pc_modified = self.__exec_instructions()
                 self.pipeline.decode()  # Update the next execute state (decode instructions, check for dependencies)
                 if not self.pipeline.decode_stalled:
+                    if not pc_modified:
+                        self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
                     self.pipeline.fetch()   # Update the next fetch state
 
                 # Sync components
@@ -48,7 +51,7 @@ class SuperScalarCPU:
         Execute the instructions in the current "execute" stage of the pipeline.
         Update the exec_stalled flag in the pipeline
         """
-        pc_not_modified = True  # Have executed any branch instruction ?
+        pc_modified = False  # Have executed any branch instruction ?
 
         for instr in self.pipeline.current["execute"]:
             if instr is None:
@@ -102,27 +105,27 @@ class SuperScalarCPU:
                 self.reg.next["gflag"] = self.reg.current[instr.op1] > self.reg.current[instr.op2]
             elif instr.opcode == "b":
                 self.reg.next["pc"] = int(instr.op1) - 1
-                pc_not_modified = False
+                pc_modified = True
                 self.pipeline.clear()
             elif instr.opcode == "br":
                 self.stack.next.append(self.reg.current["pc"] - 2 + 1 - 1)  # Next (PC-2). But pipeline update in PC+1
                 self.reg.next["pc"] = int(instr.op1) - 1
-                pc_not_modified = False
+                pc_modified = True
                 self.pipeline.clear()
             elif instr.opcode == "ret":
                 self.reg.next["pc"] = self.stack.next.pop()
-                pc_not_modified = False
+                pc_modified = True
                 self.pipeline.clear()
             elif instr.opcode == "be":
                 if self.reg.current["zflag"]:
                     self.reg.next["pc"] = int(instr.op1) - 1
-                    pc_not_modified = False
+                    pc_modified = True
                     self.pipeline.clear()
                     self.reg.next["zflag"] = False
             elif instr.opcode == "bg":
                 if self.reg.current["gflag"]:
                     self.reg.next["pc"] = int(instr.op1) - 1
-                    pc_not_modified = False
+                    pc_modified = True
                     self.pipeline.clear()
                     self.reg.next["gflag"] = False
             elif instr.opcode == "hlt":
@@ -133,14 +136,12 @@ class SuperScalarCPU:
             if (instr is not None) and (instr.type == INSTR_TYPE_MEM):
                 self.pipeline.exec_stalled = True
 
-            if (instr is not None) and (instr.opcode != "nop") and (instr.opcode != "wait"):
+            if (instr is not None) and (instr.opcode != "nop"):
                 self.instructions += 1
 
             self.pipeline.release_instruction_resources(instr)
 
-        # FIXME: are we sure this is the only condition ?
-        if pc_not_modified:
-            self.reg.next["pc"] = self.reg.current["pc"] + self.pipeline.width
+        return pc_modified
 
     def __str__(self):
         s = str(self.reg)

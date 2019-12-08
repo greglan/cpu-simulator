@@ -1,4 +1,5 @@
 from architectures.utils.parser import *
+from copy import deepcopy
 
 
 class SimplePipeline:
@@ -89,8 +90,10 @@ class SuperScalarPipeline:
         ready_instructions = []    # List of instruction to issue to the "execute" stage
 
         # Compute dependencies
-        # FIXME: add branch dependencies
         for i, instruction in enumerate(instructions):
+            if instruction is not None and instruction.type == INSTR_TYPE_BRANCH:
+                ready_instructions.append((i, instruction))
+                break   # Exit the loop because a branch instruction is always a dependency
             if self.__check_instruction_ready(instruction):
                 self.__lock_instruction_resources(instruction)
                 ready_instructions.append((i, instruction))
@@ -120,7 +123,7 @@ class SuperScalarPipeline:
 
         # If only some of the instructions can be executed, create a custom "fetch" and "decode" stage
         if self.decode_stalled:
-            self.next["fetch"] = self.current["fetch"]  # Stall fetch stage
+            self.next["fetch"] = deepcopy(self.current["fetch"])  # Stall fetch stage
 
             # Replace issued instructions from the "decode" stage by None
             self.__reset_next_stage("decode")   # Init to None
@@ -189,9 +192,12 @@ class SuperScalarPipeline:
         Set the current state to the next
         :return: None
         """
-        self.current["execute"] = [instruction for instruction in self.next["execute"]]
-        self.current["decode"] = [instruction for instruction in self.current["fetch"]]
-        self.current["fetch"] = [instruction for instruction in self.next["fetch"]]
+        self.current["execute"] = deepcopy(self.next["execute"])
+        if not self.decode_stalled:
+            self.current["decode"] = deepcopy(self.current["fetch"])
+        else:
+            self.current["decode"] = deepcopy(self.next["decode"])
+        self.current["fetch"] = deepcopy(self.next["fetch"])
 
     def sync(self):
         self.update()
