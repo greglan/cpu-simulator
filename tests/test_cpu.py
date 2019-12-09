@@ -26,16 +26,16 @@ class TestCPU(TestCase):
         # self.assertEqual(40, cpu.reg.current["r1"])
         # self.assertEqual(5, cpu.reg.current["r2"])
 
-        # prog = Program("programs/arith_test.asm")
-        # cpu = cpu_type(prog)
-        # cpu.run()
-        # self.assertEqual(0, cpu.reg.current['r0'])
-        # self.assertEqual(0x7d0, cpu.reg.current['r2'])
-        # self.assertEqual(cpu.reg.current['r3'], 1)
-        # self.assertEqual(cpu.reg.current['r7'], 2**32-1-2)
-        # self.assertEqual(cpu.reg.current['r8'], 2)
-        # self.assertEqual(cpu.reg.current['r9'], 16)
-        # self.assertEqual(cpu.reg.current['r10'], 1)
+        prog = Program("programs/arith_test.asm")
+        cpu = cpu_type(prog)
+        cpu.run()
+        self.assertEqual(0, cpu.reg.current['r0'])
+        self.assertEqual(0x7d0, cpu.reg.current['r2'])
+        self.assertEqual(cpu.reg.current['r3'], 1)
+        self.assertEqual(cpu.reg.current['r7'], 2**32-1-2)
+        self.assertEqual(cpu.reg.current['r8'], 2)
+        self.assertEqual(cpu.reg.current['r9'], 16)
+        self.assertEqual(cpu.reg.current['r10'], 1)
 
         # prog = Program("programs/branches_test.asm")
         # cpu = cpu_type(prog)
@@ -47,8 +47,8 @@ class TestCPU(TestCase):
         # cpu.run()
         # self.assertEqual(0xfe01, cpu.reg.current['r3'])
 
-        prog = Program("programs/factorial.asm")
-        cpu = cpu_type(prog)
+        # prog = Program("programs/factorial.asm")
+        # cpu = cpu_type(prog)
         # cpu.run()
         # self.assertEqual(720, cpu.reg.current['r0'])
 
@@ -57,10 +57,10 @@ class TestCPU(TestCase):
         # cpu.run()
         # self.assertEqual(0x7f80, cpu.reg.current['r3'])
 
-        prog = Program("programs/gcd.asm")
-        cpu = cpu_type(prog)
-        cpu.run()
-        self.assertEqual(5, cpu.reg.current['r0'])
-        # print(cpu)
+        # prog = Program("programs/gcd.asm")
+        # cpu = cpu_type(prog)
+        # cpu.run()
+        # self.assertEqual(5, cpu.reg.current['r0'])
+        print(cpu)
 
 
